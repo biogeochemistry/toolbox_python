@@ -8,64 +8,24 @@ import sys
 
 
 
-def model_prob_2d(x,y):
-    return -4*(1-x**2-y**2)*math.exp(-(x**2+y**2))
+def model_prob_1(x):
+    return 0
 
-def bc_at_x0(y):
-    return math.exp(-y**2)
+def model_prob_2(x):
+    return 34.0 * math.sin(x)
 
-def bc_at_xn(y):
-    return math.exp(-1-y**2)
+def solution_prob_1(x):
+    return 1.0/2*x*(1-x)
 
-def bc_at_y0(x):
-    return math.exp(-x**2)
+def solution_prob_2(x):
+    return (4*math.exp(x)+math.exp(-4*x))/(4*math.exp(math.pi)+math.exp(-4*math.pi))-5*math.sin(x)-3*math.cos(x)
 
-def bc_at_yn(x):
-    return math.exp(-4-x**2)
-
-
-ode2d = SecondOrderOde2D(1, 0, 1, 0, 0, model_prob_2d, 0, 1, 0, 2)
-bc2d = BoundaryConditions2D()
-bc2d.set_x0_dirichlet_bc(bc_at_x0)
-bc2d.set_xn_dirichlet_bc(bc_at_xn)
-bc2d.set_y0_dirichlet_bc(bc_at_y0)
-bc2d.set_yn_dirichlet_bc(bc_at_yn)
-
-bvp2d = BvpOde2D( ode2d, bc2d, 25, 25)
-bvp2d.solve()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def model_prob_1(x):
-#     return 1.0
-# def model_prob_2(x):
-#     return 34.0 * math.sin(x)
-
-# def solution_prob_1(x):
-#     return 1.0/2*x*(1-x)
-
-# def solution_prob_2(x):
-#     return (4*math.exp(x)+math.exp(-4*x))/(4*math.exp(math.pi)+math.exp(-4*math.pi))-5*math.sin(x)-3*math.cos(x)
-
-# ode1 = SecondOrderOde1D(-1, 0, 0, model_prob_1, 0 , 1)
-# bc1 = BoundaryConditions1D()
-# bc1.set_x0_dirichlet_bc(0)
-# bc1.set_xn_dirichlet_bc(0)
-# bvp1 = BvpOde1D(ode1, bc1, 100)
-# bvp1.solve()
+ode1 = SecondOrderOde1D(-1, 0, 0, model_prob_1, 0 , 1)
+bc1 = BoundaryConditions1D()
+bc1.set_x0_dirichlet_bc(0)
+bc1.set_xn_dirichlet_bc(0)
+bvp1 = BvpOde1D(ode1, bc1, 100)
+bvp1.solve()
 
 
 # ode2 = SecondOrderOde1D(1, 3, -4, model_prob_2, 0, math.pi)
@@ -79,9 +39,8 @@ bvp2d.solve()
 
 # print bvp2.U
 
-# plt.plot(bvp1.grid_x,bvp1.U)
-# plt.plot(bvp1.grid_x, [solution_prob_1(x) for x in bvp1.grid_x], 'r+')
-# plt.show()
+plt.plot(bvp1.grid_x,bvp1.U)
+plt.show()
 
 # print bvp.__dict__
 
