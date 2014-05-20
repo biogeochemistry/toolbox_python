@@ -2,7 +2,7 @@ from bvp_ode import *
 from second_order_ode import *
 from boundary_conditions import *
 import math
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
 
 def solution_prob_1(x):
@@ -67,7 +67,7 @@ class Test1D:
         assert bc2.xn_value == bcxn2, 'not assigned BC'
 
     def test_grid_formation_1d(self):
-        numpy.alltrue(bvp2.grid_x == np.linspace(x_min2, x_max2, num=nodes2))
+        np.alltrue(bvp2.grid_x == np.linspace(x_min2, x_max2, num=nodes2))
 
     def test_error_2(self):
         exact_sol_2 = [solution_prob_2(x) for x in bvp2.grid_x]
@@ -78,6 +78,24 @@ class Test1D:
 # plt.plot(bvp1.grid_x,bvp1.U)
 # plt.plot(bvp1.grid_x, [solution_prob_1(x) for x in bvp1.grid_x], 'r+')
 # plt.show()
+
+
+# Tests of 2D cases: before all
+def model_prob_2d(x,y):
+    return -4*(1-x**2-y**2)*math.exp(-(x**2+y**2))
+
+def bc_at_x0(y):
+    return math.exp(-y**2)
+
+def bc_at_xn(y):
+    return math.exp(-1-y**2)
+
+def bc_at_y0(x):
+    return math.exp(-x**2)
+
+def bc_at_yn(x):
+    return math.exp(-4-x**2)
+
 
 class Test2D:
 
@@ -94,7 +112,7 @@ class Test2D:
         assert ode2d.y_min == 9
         assert ode2d.y_max == 0
 
-    def test_boundary_conditions_2D(self):
+    def test_boundary_conditions_2D_init(self):
         bc0 = BoundaryConditions2D()
         assert not bc0.x0_is_dirichlet, 'created BC should be False'
         assert not bc0.xn_is_dirichlet, 'created BC should be False'
@@ -105,6 +123,40 @@ class Test2D:
         assert not bc0.y0_is_neumann, 'created BC should be False'
         assert not bc0.yn_is_neumann, 'created BC should be False'
 
+    def test_boundary_conditions_2D(self):
+        bc = BoundaryConditions2D()
+        bc.set_x0_dirichlet_bc(bc_at_x0)
+        bc.set_xn_dirichlet_bc(bc_at_xn)
+        bc.set_y0_dirichlet_bc(bc_at_y0)
+        bc.set_yn_dirichlet_bc(bc_at_yn)
+        assert bc.x0_is_dirichlet, 'not assigned BC'
+        assert bc.xn_is_dirichlet, 'not assigned BC'
+        assert not bc.x0_is_neumann, 'not assigned BC'
+        assert not bc.xn_is_neumann, 'not assigned BC'
+        grid = np.linspace(0 , 1, num=11)
+        assert [bc.x0_value(y) for y in grid]  == [bc_at_x0(y) for y in grid]
+        assert [bc.xn_value(y) for y in grid]  == [bc_at_xn(y) for y in grid]
+        assert [bc.y0_value(x) for x in grid]  == [bc_at_y0(x) for x in grid]
+        assert [bc.yn_value(x) for x in grid]  == [bc_at_yn(x) for x in grid]
 
+    def test_bvp_ode_init(self):
+        ode2d = SecondOrderOde2D(1, 0, 1, 0, 0, model_prob_2d, 0, 1, 0, 2)
+        bc2d = BoundaryConditions2D()
+        bc2d.set_x0_dirichlet_bc(bc_at_x0)
+        bc2d.set_xn_dirichlet_bc(bc_at_xn)
+        bc2d.set_y0_dirichlet_bc(bc_at_y0)
+        bc2d.set_yn_dirichlet_bc(bc_at_yn)
+        bvp2d = BvpOde2D( ode2d, bc2d, 25, 35)
+        assert bvp2d.ode == ode2d
+        assert bvp2d.bc == bc2d
+        assert bvp2d.num_x_nodes == 25
+        assert bvp2d.num_y_nodes == 35
+        assert (bvp2d.grid_x == np.linspace(bvp2d.ode.x_min, bvp2d.ode.x_max, num=bvp2d.num_x_nodes)).all
+        assert (bvp2d.grid_y == np.linspace(bvp2d.ode.y_min, bvp2d.ode.y_max, num=bvp2d.num_y_nodes)).all
+
+# grid = np.linspace(0 , 1, num=11)
+# bc.x0_value(1.0)
+
+# print grid
 
 

@@ -17,12 +17,22 @@ def bc_at_x0(y):
 def bc_at_xn(y):
     return math.exp(-1-y**2)
 
-# def bc
+def bc_at_y0(x):
+    return math.exp(-x**2)
 
-# uxx, ux, uyy, uy, u, rhs_func, x_min, x_max, y_min, y_max)
+def bc_at_yn(x):
+    return math.exp(-4-x**2)
+
+
 ode2d = SecondOrderOde2D(1, 0, 1, 0, 0, model_prob_2d, 0, 1, 0, 2)
 bc2d = BoundaryConditions2D()
+bc2d.set_x0_dirichlet_bc(bc_at_x0)
+bc2d.set_xn_dirichlet_bc(bc_at_xn)
+bc2d.set_y0_dirichlet_bc(bc_at_y0)
+bc2d.set_yn_dirichlet_bc(bc_at_yn)
 
+bvp2d = BvpOde2D( ode2d, bc2d, 25, 25)
+bvp2d.solve()
 
 
 

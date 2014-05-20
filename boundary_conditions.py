@@ -35,6 +35,25 @@ class BoundaryConditions2D(BoundaryConditions1D):
         self.y0_is_neumann = False
         self.yn_is_neumann = False
         
+    def set_y0_dirichlet_bc(self, value):
+        assert not self.y0_is_neumann, "BC was already set."
+        self.y0_is_dirichlet = True
+        self.y0_value = value
+
+    def set_yn_dirichlet_bc(self, value):
+        assert not self.yn_is_neumann, "BC was already set."
+        self.yn_is_dirichlet = True
+        self.yn_value = value
+
+    def set_y0_neumann_bc(self, value):
+        assert not self.y0_is_dirichlet, "BC was already set."
+        self.y0_is_neumann = True
+        self.y0_value = value
+
+    def set_yn_neumann_bc(self, value):
+        assert not self.yn_is_dirichlet, "BC was already set."
+        self.yn_is_neumann = True
+        self.yn_value = value
 
         
 
