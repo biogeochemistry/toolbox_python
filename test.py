@@ -19,7 +19,7 @@ def model_prob_2(x):
 
 # test: before all
 # 
-ode1 = SecondOrderOde1D(-1, 0, 0, model_prob_1, 0 , 1)
+ode1 = SecondOrderOde1D(-1, 0, 0, model_prob_1, 0, 0 , 1)
 bc1 = BoundaryConditions1D()
 bc1.set_x0_dirichlet_bc(0)
 bc1.set_xn_dirichlet_bc(0)
@@ -35,7 +35,7 @@ u2 = -4
 bcx02 = -5
 bcxn2 = 4
 
-ode2 = SecondOrderOde1D(uxx2, ux2, u2, model_prob_2, x_min2, x_max2)
+ode2 = SecondOrderOde1D(uxx2, ux2, u2, model_prob_2, 0, x_min2, x_max2)
 bc2 = BoundaryConditions1D()
 bc2.set_x0_neumann_bc(bcx02)
 bc2.set_xn_dirichlet_bc(bcxn2)
@@ -100,17 +100,18 @@ def bc_at_yn(x):
 class Test2D:
 
     def test_second_order_ode_2D(self):
-        ode2d = SecondOrderOde2D(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+        ode2d = SecondOrderOde2D(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
         assert ode2d.uxx == 1
         assert ode2d.ux == 2
         assert ode2d.uyy == 3
         assert ode2d.uy == 4
         assert ode2d.u == 5
         assert ode2d.rhs_func == 6
-        assert ode2d.x_min == 7
-        assert ode2d.x_max == 8
-        assert ode2d.y_min == 9
-        assert ode2d.y_max == 0
+        assert ode2d.sources_sinks_func == 7
+        assert ode2d.x_min == 8
+        assert ode2d.x_max == 9
+        assert ode2d.y_min == 10
+        assert ode2d.y_max == 11
 
     def test_boundary_conditions_2D_init(self):
         bc0 = BoundaryConditions2D()
@@ -140,7 +141,7 @@ class Test2D:
         assert [bc.yn_value(x) for x in grid]  == [bc_at_yn(x) for x in grid]
 
     def test_bvp_ode_init(self):
-        ode2d = SecondOrderOde2D(1, 0, 1, 0, 0, model_prob_2d, 0, 1, 0, 2)
+        ode2d = SecondOrderOde2D(1, 0, 1, 0, 0, model_prob_2d,0, 0, 1, 0, 2)
         bc2d = BoundaryConditions2D()
         bc2d.set_x0_dirichlet_bc(bc_at_x0)
         bc2d.set_xn_dirichlet_bc(bc_at_xn)

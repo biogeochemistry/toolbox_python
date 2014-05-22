@@ -78,9 +78,9 @@ class BvpOde1D(BvpOde):
             left_bc_applied = True
 
         if self.bc.xn_is_neumann:
-            h = self.grid_x[self.num_x_nodes-1]-self.grid_x[self.num_nodes-2]
-            self.mtx[self.num_nodes-1, self.num_nodes-2] = -1.0/h
-            self.mtx[self.num_nodes-1, self.num_nodes-1] = 1.0/h
+            h = self.grid_x[self.num_x_nodes-1]-self.grid_x[self.num_x_nodes-2]
+            self.mtx[self.num_x_nodes-1, self.num_x_nodes-2] = -1.0/h
+            self.mtx[self.num_x_nodes-1, self.num_x_nodes-1] = 1.0/h
             right_bc_applied = True
         self.vec[0] = self.bc.x0_value
         self.vec[self.num_x_nodes-1] = self.bc.xn_value
@@ -95,6 +95,49 @@ class BvpOde2D(BvpOde1D):
 
     def populate_matrix(self):
         pass
+        
+class BvpPde1D(BvpOde1D):
+    """docstring for BvpPde1D"""
+    def __init__(self, ode, bc, dt, tau, T, num_x_nodes, uj0):
+        BvpOde1D.__init__(self, ode, bc, num_x_nodes)
+        self.dt = dt
+        self.tau = tau
+        self.T = T
+        self.uj0 = uj0
+        
+    def solve_pde(self):
+        self.populate_operators()
+        self.populate_init_vector()
+        self.differentiate_in_time()
+
+    def populate_operators(self):
+        I = np.identity(self.num_x_nodes)
+        self.populate_matrix()
+        self.populate_vector()
+        self.apply_boundary_conditions()
+        F =1*self.mtx
+        self.operator_uj0 = (I +       self.tau * self.dt * F)
+        self.operator_uj1 = (I - (1 - self.tau) * self.dt * F)
+
+    def populate_init_vector(self):
+        x_vec = self.grid_x
+        self.b = [self.uj0(x) for x in x_vec]
+
+
+    def differentiate_in_time(self):
+        self.b[0] = self.vec[0]
+        self.b[self.num_x_nodes-1] = self.vec[self.num_x_nodes-1]
+        for x in xrange(0,int(self.T/self.dt)):
+            temp = np.dot(np.array(self.operator_uj0), np.array(self.b))
+            solution = dsolve.spsolve(sparse.csr_matrix(self.operator_uj1), np.array(temp), use_umfpack=True)
+            self.b = solution
+            self.U = self.b
+            self.b[0] = self.vec[0]
+            self.b[self.num_x_nodes-1] = self.vec[self.num_x_nodes-1]
+
+
+
+
         
         
 
