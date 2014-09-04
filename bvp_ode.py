@@ -27,13 +27,16 @@ class BvpOde:
 
 class BvpOde1D(BvpOde):
     """docstring for BvpOde1D"""
-    def __init__(self, ode, bc, num_x_nodes, uniform=True):
+    def __init__(self, ode, bc, num_x_nodes, custom_grid=False, grid_x=False):
         self.ode = ode
         self.bc = bc
         self.num_x_nodes = num_x_nodes
-        self.make_x_grid()
-        self.uniform = uniform
-        
+        if custom_grid:
+            self.grid_x = grid_x
+            self.uniform = False
+        else:
+            self.make_x_grid()
+            self.uniform = True
 
     def set_file_name(self, str):
         self.file_name = str
@@ -44,18 +47,19 @@ class BvpOde1D(BvpOde):
         x = x_vec[1:-1]
         xp = x_vec[2:]
 
-        diffusion_alpha = 2.0/(xp-xm)/(x-xm)
-        diffusion_betta = -2.0/(xp-x)/(x-xm)
-        diffusion_gamma = 2.0/(xp-xm)/(xp-x)
+        alpha = 2.0/(xp-xm)/(x-xm)
+        betta = -2.0/(xp-x)/(x-xm)
+        gamma = 2.0/(xp-xm)/(xp-x)
         
-        main_diag = diffusion_betta*self.ode.uxx + self.ode.u
-        left_diag = diffusion_alpha*self.ode.uxx - self.ode.ux/(xp-xm)
-        right_diag = diffusion_gamma*self.ode.uxx + self.ode.ux/(xp-xm)
-        main_diag = np.append([0], main_diag, 0)
-        main_diag = np.append(main_diag,[0], 0)
-        left_diag = np.append(left_diag, [[0, 0]]); 
+    
+        left_diag  = alpha*self.ode.uxx - self.ode.ux/(xp-xm)
+        main_diag  = betta*self.ode.uxx + self.ode.u
+        right_diag = gamma*self.ode.uxx + self.ode.ux/(xp-xm)
+        main_diag  = np.append([0], main_diag, 0)
+        main_diag  = np.append(main_diag,[0], 0)
+        left_diag  = np.append(left_diag, [[0, 0]]); 
         right_diag = np.append([0, 0], right_diag);
-        self.mtx = sparse.spdiags([left_diag, main_diag, right_diag ], [-1,0, 1], self.num_x_nodes, self.num_x_nodes, format="lil")
+        self.mtx   = sparse.spdiags([left_diag, main_diag, right_diag ], [-1,0, 1], self.num_x_nodes, self.num_x_nodes, format="lil")
 
     def populate_matrix_6th_order(self):
         h = self.grid_x[self.num_x_nodes-1]-self.grid_x[self.num_x_nodes-2]
@@ -145,15 +149,16 @@ class BvpOde1D(BvpOde):
             h = self.grid_x[1]-self.grid_x[0]
             F = self.bc.x0_value
             self.mtx[0,0] = -2.0*D/(h*h)
-            self.mtx[0,1] = 2.0*D/(h*h)
+            self.mtx[0,1] =  2.0*D/(h*h)
             self.vec[0] =  2 * F * ( D/h - h*w);
             self.is_x0_bc_applied = True
 
         if self.bc.xn_is_neumann:
             h = self.grid_x[self.num_x_nodes-1]-self.grid_x[self.num_x_nodes-2]
             F = self.bc.xn_value
-            self.mtx[self.num_x_nodes-1, self.num_x_nodes-2] = -1.0/h
-            self.mtx[self.num_x_nodes-1, self.num_x_nodes-1] = 1.0/h
+            self.mtx[self.num_x_nodes-1, self.num_x_nodes-2] = -2.0*D/(h*h)
+            self.mtx[self.num_x_nodes-1, self.num_x_nodes-1] = 2.0*D/(h*h)
+            self.vec[self.num_x_nodes-1] =  2 * F * ( D/h - h*w);
             self.is_xn_bc_applied = True
 
         assert self.is_x0_bc_applied and self.is_xn_bc_applied
@@ -167,45 +172,5 @@ class BvpOde2D(BvpOde1D):
 
     def populate_matrix(self):
         pass
-        
-class BvpPde1D(BvpOde1D):
-    """docstring for BvpPde1D"""
-    def __init__(self, ode, bc, dt, tau, T, num_x_nodes, uj0):
-        BvpOde1D.__init__(self, ode, bc, num_x_nodes)
-        self.dt = dt
-        self.tau = tau
-        self.T = T
-        self.uj0 = uj0
-        
-    def solve_pde(self):
-        self.populate_operators()
-        self.populate_init_vector()
-        self.differentiate_in_time()
-
-    def populate_operators(self):
-        I = np.identity(self.num_x_nodes)
-        self.populate_matrix()
-        self.populate_vector()
-        self.apply_boundary_conditions()
-        F =1*self.mtx
-        self.operator_uj0 = (I +       self.tau * self.dt * F)
-        self.operator_uj1 = (I - (1 - self.tau) * self.dt * F)
-
-    def populate_init_vector(self):
-        x_vec = self.grid_x
-        self.b = [self.uj0(x) for x in x_vec]
-        self.Ut = [self.uj0(x) for x in x_vec]
-
-    def differentiate_in_time(self):
-        self.b[0] = self.vec[0]
-        self.b[self.num_x_nodes-1] = self.vec[self.num_x_nodes-1]
-        for x in xrange(0,int(self.T/self.dt)):
-            temp = np.dot(np.array(self.operator_uj0), np.array(self.b))
-            solution = dsolve.spsolve(sparse.csr_matrix(self.operator_uj1), np.array(temp), use_umfpack=True)
-            self.b = solution
-            self.Ut = np.vstack([self.Ut, solution])
-            self.U = self.b
-            self.b[0] = self.vec[0]
-            self.b[self.num_x_nodes-1] = self.vec[self.num_x_nodes-1]
 
 

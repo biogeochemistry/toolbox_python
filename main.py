@@ -3,6 +3,9 @@ from second_order_ode import *
 from boundary_conditions import *
 import numpy
 from bvp_ode import *
+from bvp_pde import *
+from coupled_pde import *
+from specie_collector import *
 import matplotlib.pyplot as plt
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
@@ -10,32 +13,87 @@ import math
 import sys
 import numpy as np
 
-
-def model_prob_1(x):
-    return 0
-
-def model_prob_2(x):
-    return 34.0 * math.sin(x)
-
-def solution_prob_1(x):
-    return 1.0/2*x*(1-x)
-
-def solution_prob_2(x):
-    return (4*math.exp(x)+math.exp(-4*x))/(4*math.exp(math.pi)+math.exp(-4*math.pi))-5*math.sin(x)-3*math.cos(x)
-
 def init_cond(x):
     return 0.5
 
+x_min = 0
+x_max = 20
+num_x_nodes = 256
+x = np.linspace(x_min, x_max, num=num_x_nodes)
+
+a = 'ox'
+b = 'om'
+d_ox = 500.0
+w_ox = -5
+dt = 0.01
+T = 1
+bc_x0_type = 'Dirichlet'
+bc_x0_value = 0.15
+bc_xn_type = 'Neumann'
+bc_xn_value = 0
+init_concentrations = init_cond
+
+species = SpecieCollector()
+species.add_specie('ox', d_ox, w_ox, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
+species.add_specie('ox1', d_ox, w_ox, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
+species.add_specie('ox2', d_ox, w_ox, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
+print species.all
+# species[a]=create_single_container(d_ox, w_ox, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
+# species[a]['pde'].solve()
+
+# print species[a]['pde'].Ut
 
 
+
+# xa = np.linspace(0, 0.5, 10)
+# xb = np.linspace(0.5,1.5,10)
+# xc = np.linspace(1.5,math.pi,12)
+
+# v = np.r_[1:2:10,11]
+# x1 = np.hstack((np.linspace(0, 1, 64, endpoint=False), np.linspace(1, 2, 48,endpoint=False), np.linspace(2, math.pi, 16, endpoint=True)))
+# print  len(a)
+
+# x1 = np.logspace(0.1, 1, N, endpoint=True)
+# x2 = np.logspace(0.1, 1, N, endpoint=False)
+
+
+# y = np.zeros(128)
+
+# plt.plot(x1, y, 'o')
+
+# plt.plot(x2, y + 0.5, 'o')
+
+# plt.ylim([-0.5, 1])
+
+# plt.show()
 
 # ode1 = SecondOrderOde1D(10, -10, 0, model_prob_1, 0, 0 , 15)
 # bc1 = BoundaryConditions1D()
 # bc1.set_x0_dirichlet_bc(0.15)
 # bc1.set_xn_neumann_bc(0)
 
-# bvp1 = BvpPde1D(ode1, bc1, 0.01, 0, 10, 120, init_cond)
-# bvp1.solve_pde()
+# bvp1 = BvpPde1D(ode1, bc1, 0.001, 0, 1, 120, init_cond)
+# # bvp1.solve_pde()
+
+# ode2 = SecondOrderOde1D(10, -10, 0, model_prob_1, 0, 0 , 15)
+# bc2 = BoundaryConditions1D()
+# bc2.set_x0_dirichlet_bc(0.15)
+# bc2.set_xn_neumann_bc(0)
+
+# bvp2 = BvpPde1D(ode1, bc1, 0.001, 0, 1, 120, init_cond)
+# # bvp2.solve_pde()
+
+# cpde = CoupledPdes(bvp1, bvp2)
+
+# # print cpde.pdes
+# # 
+
+# # a = np.array([[1, 0], [0, 1]])
+# # b = np.array([[4, 1], [2, 2]])
+
+# cpde.solve()
+# print cpde.pdes[0].Ut
+
 
 # x = bvp1.grid_x
 # X,Y = np.meshgrid(x, np.linspace(0,10,1001))
