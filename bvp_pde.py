@@ -30,9 +30,9 @@ class BvpPde1D(BvpOde1D):
 
     def differentiate_in_time(self):
         for x in xrange(0,int(self.T/self.dt)):
-            self.differentiate_1TS_pde()
+            self.differentiate_pde_1TS()
 
-    def differentiate_1TS_pde(self):
+    def differentiate_pde_1TS(self):
         self.b[0] = self.vec[0]
         self.b[self.num_x_nodes-1] = self.vec[self.num_x_nodes-1]
         temp = np.dot(np.array(self.operator_uj0), np.array(self.b))

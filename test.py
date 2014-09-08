@@ -231,9 +231,12 @@ class TestSpecieCollector:
         species.all['ox']['rate'] = 'k*ox'
         species.all['om']['rate'] = 'k*ox'
 
-        # print species.all['ox']['pde'].U
+        
+
+
+        print species.all['ox']['pde'].U
         species.reaction_term()
-        raise SkipTest
+        # raise SkipTest
 
 
     def create_rate_law_formulas_for_each_specie_based_on_regex_test(cls):

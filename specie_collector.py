@@ -6,7 +6,6 @@ from bvp_ode import *
 from bvp_pde import *
 from coupled_pde import *
 from specie_collector import *
-from helpers import *
 import matplotlib.pyplot as plt
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
