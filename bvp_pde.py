@@ -25,8 +25,8 @@ class BvpPde1D(BvpOde1D):
 
     def populate_init_vector(self):
         x_vec = self.grid_x
-        self.b = [self.uj0(x) for x in x_vec]
-        self.Ut = [self.uj0(x) for x in x_vec]
+        self.b = np.array([self.uj0(x) for x in x_vec])
+        self.Ut = np.array([self.uj0(x) for x in x_vec])
 
     def differentiate_in_time(self):
         for x in xrange(0,int(self.T/self.dt)):

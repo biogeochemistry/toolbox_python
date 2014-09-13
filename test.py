@@ -4,10 +4,10 @@ from nose.tools import nottest
 from nose.plugins.skip import Skip, SkipTest
 import unittest
 from mock import *
-from spec import Spec
 from second_order_ode import *
 from boundary_conditions import *
 import numpy
+import numexpr as ne
 from bvp_ode import *
 from bvp_pde import *
 from coupled_pde import *
@@ -33,7 +33,7 @@ def solution_prob_2(x):
     return (4*math.exp(x) + math.exp(-4*x))/(4*math.exp(math.pi)+math.exp(-4*math.pi))-5*math.sin(x)-3*math.cos(x)
 
 def init_cond(x):
-    return 0.5
+    return 0.5*x
 
 
 class TestBoundaryConditions:
@@ -197,7 +197,7 @@ class TestSpecieCollector:
     def creating_PDEs_automatically_test(cls):
         x_min = 0
         x_max = 20
-        num_x_nodes = 256
+        num_x_nodes = 12
         x = np.linspace(x_min, x_max, num=num_x_nodes)
         a = 'ox'
         b = 'om'
@@ -213,16 +213,53 @@ class TestSpecieCollector:
         container = SpecieCollector()
         container.add_specie('ox',d_ox, w_ox, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
         assert isinstance(container.all['ox']['pde'], BvpPde1D)
+        
+        # Testing of updating of dictionary of species
+        for x in xrange(1,10):
+            container.differentiate1Ts()
+        test.eq_((container.get_C_vector('ox') == container.dict_of_conc_vec['ox']).all(), True)
 
 
     def differentitate_1_time_step_for_each_specie_in_the_container_test(cls):
         pde_stub = MagicMock()
         species = SpecieCollector()
+        species.dict_of_conc_vec = MagicMock()
         species.all[1] = {'pde': pde_stub}
         species.all[2] = {'pde': pde_stub}
         species.all[3] = {'pde': pde_stub}
         species.differentiate1Ts()
-        pde_stub.differentiate_1TS_pde.assert_called_with()
+        pde_stub.differentiate_pde_1TS.assert_called_with()
+
+    def get_C_vector_test(cls):
+        species = SpecieCollector()
+        pde_stub = MagicMock()
+        species.all['ox'] = {'pde': pde_stub}
+        species.all['ox']['pde'].Ut = np.array([0.5,0.5])
+        test.eq_((species.get_C_vector('ox')==np.array([0.5, 0.5])).all(), True)
+
+    def update_dictionary_of_concentrations_test(cls):
+        species = SpecieCollector()
+        pde_stub = MagicMock()
+        species.all['ox'] = {'pde': pde_stub}
+        species.all['ox']['pde'].Ut = np.array([0.5,0.5])
+        species.dict_of_conc_vec['ox'] = 0
+        species.update_dict_of_conc()
+        test.eq_((species.dict_of_conc_vec['ox'] == np.array([0.5,0.5]) ).all(), True)
+
+    def add_current_specie_to_dictionary_of_conctreations_test(cls):
+        species = SpecieCollector()
+        species.create_pde = MagicMock()
+        species.add_to_dict_of_conc = MagicMock()
+        species.add_specie('Ox',1,2,3,4,5,6,7,8,9,10,11,12)
+        species.add_to_dict_of_conc.assert_called_once_with('Ox')
+
+    def add_to_dictionary_of_concentration_test(cls):
+        species = SpecieCollector()
+        pde_stub = MagicMock()
+        species.all['Ox'] = {'pde': pde_stub}
+        species.all['Ox']['pde'].Ut = np.array([0.01, 0.01])
+        species.add_to_dict_of_conc('Ox')
+        test.eq_((species.all['Ox']['pde'].Ut == species.dict_of_conc_vec['Ox']).all(), True)
 
     def adding_reaction_term_at_each_time_step_test(cls):
         species = SpecieCollector()
@@ -256,19 +293,26 @@ class TestSpecieCollector:
 
         # raise SkipTest
         # 
-    def create_dynamic_variables_test(cls):
-        map = {}
-        x = "Buffalo"
-        map[x] = 4
-        # print map['Buffalo']
 
-    def trial_test(cls):
-        rate = '2*a*(b/c)**2'
-        var = {'a':1,'b':2,'c':3}
-        print var
-        print eval("%(a)s*%(b)s*%(c)s"%var)
-        rate_for_dict_variables = re.sub(r'([A-z][A-z0-9]*)', r'%(\1)s', rate)
-        print eval(rate_for_dict_variables%var)
+    def diffentiate_reaction_term_test(cls):
+        # rate = '(a+b)/c'
+        # var = {'a':np.array([1,2]),'b':np.array([2]),'c':np.array([3])}
+        # result = ne.evaluate(rate, local_dict=var)
+        # print result
+        species = SpecieCollector()
+        pde_stub = MagicMock()
+
+        species.all['ox'] = {'pde': pde_stub}
+        species.all['om'] = {'pde': pde_stub}
+        A=1
+        b=0.5
+        x=100
+        species.all['ox']['rate'] = 'A*b/(x*x)'
+        R_ox = eval(species.all['ox']['rate'])
+
+
+
+        
 
 
 

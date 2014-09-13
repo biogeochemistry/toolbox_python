@@ -17,9 +17,11 @@ class SpecieCollector(object):
     """docstring for SpecieCollector"""
     def __init__(self):
         self.all ={}
+        self.dict_of_conc_vec = {}
     
     def add_specie(self, specie, D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes):
         self.all[specie] = self.create_single_container(D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
+        self.add_to_dict_of_conc(specie)
 
     def create_single_container(self, D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes):
         """Create dict for specie"""
@@ -48,10 +50,32 @@ class SpecieCollector(object):
 
     def differentiate1Ts(self):
         for specie in self.all:
-            self.all[specie]['pde'].differentiate_1TS_pde()
+            self.all[specie]['pde'].differentiate_pde_1TS()
+            self.update_dict_of_conc()
+
+    def get_C_vector(self, specie):
+        if self.all[specie]['pde'].Ut.shape == (self.all[specie]['pde'].num_x_nodes,):
+            return self.all[specie]['pde'].Ut
+        else:
+            return self.all[specie]['pde'].Ut[-1]
+
+
+    def add_to_dict_of_conc(self,specie):
+        self.dict_of_conc_vec[specie] = self.get_C_vector(specie)
+
+    def update_dict_of_conc(self):
+        for specie in self.dict_of_conc_vec:
+            self.dict_of_conc_vec[specie] = self.get_C_vector(specie)
 
     def reaction_term(self):
         pass
 
     def create_rate_law_formulas_for_each_specie(self):
+        pass
+
+    def differentiate_reaction_term(self):
+        pass
+
+    def create_variables_from_regexp(self):
+        # re.sub(r'([A-z][A-z0-9]*)', r'%(\1)s', rate)
         pass

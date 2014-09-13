@@ -1,2 +1,2 @@
 [run]
-omit = *spec*, *mock*, *scipy*,*numpy*,*matplotlib*,*PIL*,*mpl_toolkits*,*dateutil*,*cffi*,*ConfigParser*,*FixTk*,*Queue*,*bisect*,*calendar*,*copy_reg*,*csv*,*decimal*,*distutils*,*grid*,*numbers*,*repr*,*six*
+omit = *ast*,*numexpr*, *mock*, *scipy*,*numpy*,*matplotlib*,*PIL*,*mpl_toolkits*,*dateutil*,*cffi*,*ConfigParser*,*FixTk*,*Queue*,*bisect*,*calendar*,*copy_reg*,*csv*,*decimal*,*distutils*,*grid*,*numbers*,*repr*,*six*
