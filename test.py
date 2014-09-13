@@ -1,3 +1,4 @@
+from __future__ import division # normal division
 import nose.tools as test
 from nose.tools import nottest
 from nose.plugins.skip import Skip, SkipTest
@@ -16,6 +17,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import math
 import sys
+import ast
+import re
 
 def model_prob_1(x):
     return 1.0
@@ -224,23 +227,50 @@ class TestSpecieCollector:
     def adding_reaction_term_at_each_time_step_test(cls):
         species = SpecieCollector()
         pde_stub = MagicMock()
+        
         species.all['ox'] = {'pde': pde_stub}
         species.all['om'] = {'pde': pde_stub}
+        
         species.all['ox']['pde'].U = 0.5
         species.all['om']['pde'].U = 0.5
+        
         species.all['ox']['rate'] = 'k*ox'
         species.all['om']['rate'] = 'k*ox'
 
-        
-
-
-        print species.all['ox']['pde'].U
+        # print species.all['ox']['pde'].U
         species.reaction_term()
         # raise SkipTest
 
 
     def create_rate_law_formulas_for_each_specie_based_on_regex_test(cls):
-        raise SkipTest
+        species = SpecieCollector()
+        pde_stub = MagicMock()
+
+        species.all['ox'] = {'pde': pde_stub}
+        species.all['om'] = {'pde': pde_stub}
+        A=1
+        b=0.5
+        x=100
+        species.all['ox']['rate'] = 'A*b/(x*x)'
+        R_ox = eval(species.all['ox']['rate'])
+
+        # raise SkipTest
+        # 
+    def create_dynamic_variables_test(cls):
+        map = {}
+        x = "Buffalo"
+        map[x] = 4
+        # print map['Buffalo']
+
+    def trial_test(cls):
+        rate = '2*a*(b/c)**2'
+        var = {'a':1,'b':2,'c':3}
+        print var
+        print eval("%(a)s*%(b)s*%(c)s"%var)
+        rate_for_dict_variables = re.sub(r'([A-z][A-z0-9]*)', r'%(\1)s', rate)
+        print eval(rate_for_dict_variables%var)
+
+
 
 
         
