@@ -2,3 +2,4 @@
 /toolbox_python.sublime-project
 /toolbox_python.sublime-workspace
 *.ipynb
+*.coverage
