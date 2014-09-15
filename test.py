@@ -308,10 +308,8 @@ class TestSpecieCollector:
         # var = {'a':np.array([1,2]),'b':np.array([2]),'c':np.array([3])}
         # result = ne.evaluate(rate, local_dict=var)
         # print result
-
         species = SpecieCollector()
         pde_stub = MagicMock()
-
         species.all['ox'] = {'pde': pde_stub}
         species.all['om'] = {'pde': pde_stub}
         A = 1
