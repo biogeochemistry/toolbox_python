@@ -300,7 +300,7 @@ class TestSpecieCollector:
         species.all['ox']['rate'] = 'A*b/(x*x)'
         R_ox = eval(species.all['ox']['rate'])
 
-        raise SkipTest
+        # raise SkipTest
 
     def diffentiate_reaction_term_test(cls):
         # rate = '(a+b)/c'
