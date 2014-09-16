@@ -48,6 +48,10 @@ class SpecieCollector(object):
             bc.set_xn_neumann_bc(specie['bc_xn_value'])
         return BvpPde1D(ode, bc, specie['dt'], 0, specie['T'], specie['num_x_nodes'], specie['init_concentrations'])
 
+    def differentiate_all_1_TS(self):
+        self.differentiate_transport_terms_all()
+        self.differentiate_reaction_terms_all()
+
     def differentiate_transport_terms_all(self):
         for specie in self.all:
             self.all[specie]['pde'].differentiate_pde_1TS()
