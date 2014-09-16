@@ -1,4 +1,4 @@
-from __future__ import division # normal division
+from __future__ import division  # normal division
 from second_order_ode import *
 from boundary_conditions import *
 import numpy
@@ -13,22 +13,25 @@ import math
 import sys
 import numpy as np
 
+
 class SpecieCollector(object):
+
     """docstring for SpecieCollector"""
+
     def __init__(self):
-        self.all ={}
+        self.all = {}
         self.dict_of_conc_vec = {}
-    
+
     def add_specie(self, specie, D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes):
         self.all[specie] = self.create_single_container(D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
         self.add_to_dict_of_conc(specie)
 
     def create_single_container(self, D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes):
         """Create dict for specie"""
-        container =  {'D': D, 'w':w, 'dt':dt, 'T':T, 'x_min':x_min, 'x_max':x_max, 
-                    'num_x_nodes':num_x_nodes,'bc_x0_type': bc_x0_type, 'bc_x0_value':bc_x0_value,
-                    'bc_xn_type':bc_xn_type, 'bc_xn_value': bc_xn_value, 
-                    'init_concentrations': init_concentrations }
+        container = {'D': D, 'w': w, 'dt': dt, 'T': T, 'x_min': x_min, 'x_max': x_max,
+                     'num_x_nodes': num_x_nodes, 'bc_x0_type': bc_x0_type, 'bc_x0_value': bc_x0_value,
+                     'bc_xn_type': bc_xn_type, 'bc_xn_value': bc_xn_value,
+                     'init_concentrations': init_concentrations}
         container['pde'] = self.create_pde(container)
         return container
 
@@ -39,14 +42,17 @@ class SpecieCollector(object):
         def model_prob_1(x):
             return 0
 
-        ode = SecondOrderOde1D(specie['D'], specie['w'], 0, model_prob_1, 0, specie['x_min'] , specie['x_max'])
+        ode = SecondOrderOde1D(specie['D'], specie['w'], 0, model_prob_1, 0, specie['x_min'], specie['x_max'])
         bc = BoundaryConditions1D()
-        if specie['bc_x0_type'] == 'Dirichlet': bc.set_x0_dirichlet_bc(specie['bc_x0_value'])
-        if specie['bc_x0_type'] == 'Neumann'  : bc.set_x0_neumann_bc(specie['bc_x0_value'])
-        if specie['bc_xn_type'] == 'Dirichlet': bc.set_xn_dirichlet_bc(specie['bc_xn_value'])
-        if specie['bc_xn_type'] == 'Neumann'  : bc.set_xn_neumann_bc(specie['bc_xn_value'])
+        if specie['bc_x0_type'] == 'Dirichlet':
+            bc.set_x0_dirichlet_bc(specie['bc_x0_value'])
+        if specie['bc_x0_type'] == 'Neumann':
+            bc.set_x0_neumann_bc(specie['bc_x0_value'])
+        if specie['bc_xn_type'] == 'Dirichlet':
+            bc.set_xn_dirichlet_bc(specie['bc_xn_value'])
+        if specie['bc_xn_type'] == 'Neumann':
+            bc.set_xn_neumann_bc(specie['bc_xn_value'])
         return BvpPde1D(ode, bc, specie['dt'], 0, specie['T'], specie['num_x_nodes'], specie['init_concentrations'])
-
 
     def differentiate1Ts(self):
         for specie in self.all:
@@ -59,8 +65,7 @@ class SpecieCollector(object):
         else:
             return self.all[specie]['pde'].Ut[-1]
 
-
-    def add_to_dict_of_conc(self,specie):
+    def add_to_dict_of_conc(self, specie):
         self.dict_of_conc_vec[specie] = self.get_C_vector(specie)
 
     def update_dict_of_conc(self):
