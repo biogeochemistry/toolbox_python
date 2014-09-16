@@ -1,17 +1,10 @@
 from __future__ import division  # normal division
 from second_order_ode import *
 from boundary_conditions import *
-import numpy
 from bvp_ode import *
 from bvp_pde import *
 from coupled_pde import *
 from specie_collector import *
-import matplotlib.pyplot as plt
-import matplotlib
-from mpl_toolkits.mplot3d import Axes3D
-import math
-import sys
-import numpy as np
 
 
 class SpecieCollector(object):

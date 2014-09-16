@@ -1,24 +1,16 @@
 from __future__ import division  # normal division
 import nose.tools as test
-from nose.tools import nottest
-from nose.plugins.skip import Skip, SkipTest
-import unittest
+from nose.plugins.skip import SkipTest
 from mock import *
 from second_order_ode import *
 from boundary_conditions import *
-import numpy
 import numexpr as ne
 from bvp_ode import *
 from bvp_pde import *
 from coupled_pde import *
 from specie_collector import *
 from grid import *
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import math
-import sys
-import ast
-import re
 
 
 def model_prob_1(x):
@@ -284,7 +276,6 @@ class TestSpecieCollector:
         species.all['ox']['rate'] = 'k*ox'
         species.all['om']['rate'] = 'k*ox'
 
-        # print species.all['ox']['pde'].U
         species.reaction_term()
         # raise SkipTest
 
@@ -300,10 +291,9 @@ class TestSpecieCollector:
         species.all['ox']['rate'] = 'A*b/(x*x)'
         R_ox = eval(species.all['ox']['rate'])
 
-
         raise SkipTest
         # testing git flow
-        # raise SkipTest
+        raise SkipTest
 
     def diffentiate_reaction_term_test(cls):
         # rate = '(a+b)/c'
