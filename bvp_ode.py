@@ -13,7 +13,7 @@ class BvpOde:
         self.file_name = str
 
     def solve(self):
-        self.populate_matrix_6th_order() if self.uniform == True else self.populate_matrix()
+        self.populate_matrix_6th_order() if self.uniform else self.populate_matrix()
         self.populate_vector()
         self.apply_boundary_conditions()
         self.mtx = sparse.csr_matrix(self.mtx)

@@ -1,24 +1,15 @@
 from __future__ import division  # normal division
 import nose.tools as test
-from nose.tools import nottest
-from nose.plugins.skip import Skip, SkipTest
-import unittest
+from nose.plugins.skip import SkipTest
 from mock import *
 from second_order_ode import *
 from boundary_conditions import *
-import numpy
-import numexpr as ne
 from bvp_ode import *
 from bvp_pde import *
 from coupled_pde import *
 from specie_collector import *
 from grid import *
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import math
-import sys
-import ast
-import re
 
 
 def model_prob_1(x):
@@ -190,20 +181,20 @@ class TestSpecieCollector:
     def add_method_creates_container_with_specie_test(cls):
         species = SpecieCollector()
         species.create_pde = MagicMock()
-        species.add_specie('Ox', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-        test.eq_(species.all['Ox']['D'] == 1, True)
-        test.eq_(species.all['Ox']['w'] == 2, True)
-        test.eq_(species.all['Ox']['dt'] == 3, True)
-        test.eq_(species.all['Ox']['T'] == 4, True)
-        test.eq_(species.all['Ox']['bc_x0_type'] == 5, True)
-        test.eq_(species.all['Ox']['bc_x0_value'] == 6, True)
-        test.eq_(species.all['Ox']['bc_xn_type'] == 7, True)
-        test.eq_(species.all['Ox']['bc_xn_value'] == 8, True)
-        test.eq_(species.all['Ox']['init_concentrations'] == 9, True)
-        test.eq_(species.all['Ox']['x_min'] == 10, True)
-        test.eq_(species.all['Ox']['x_max'] == 11, True)
-        test.eq_(species.all['Ox']['num_x_nodes'] == 12, True)
-        species.create_pde.assert_called_once_with(species.all['Ox'])
+        species.add_specie('ox', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        test.eq_(species.all['ox']['D'] == 1, True)
+        test.eq_(species.all['ox']['w'] == 2, True)
+        test.eq_(species.all['ox']['dt'] == 3, True)
+        test.eq_(species.all['ox']['T'] == 4, True)
+        test.eq_(species.all['ox']['bc_x0_type'] == 5, True)
+        test.eq_(species.all['ox']['bc_x0_value'] == 6, True)
+        test.eq_(species.all['ox']['bc_xn_type'] == 7, True)
+        test.eq_(species.all['ox']['bc_xn_value'] == 8, True)
+        test.eq_(species.all['ox']['init_concentrations'] == 9, True)
+        test.eq_(species.all['ox']['x_min'] == 10, True)
+        test.eq_(species.all['ox']['x_max'] == 11, True)
+        test.eq_(species.all['ox']['num_x_nodes'] == 12, True)
+        species.create_pde.assert_called_once_with(species.all['ox'])
 
     def creating_PDEs_automatically_test(cls):
         x_min = 0
@@ -227,17 +218,17 @@ class TestSpecieCollector:
 
         # Testing of updating of dictionary of species
         for x in xrange(1, 10):
-            container.differentiate1Ts()
-        test.eq_((container.get_C_vector('ox') == container.dict_of_conc_vec['ox']).all(), True)
+            container.differentiate_transport_terms_all()
+        test.eq_((container.get_C_vector('ox') == container.dict_of_conc_and_params['ox']).all(), True)
 
     def differentitate_1_time_step_for_each_specie_in_the_container_test(cls):
         pde_stub = MagicMock()
         species = SpecieCollector()
-        species.dict_of_conc_vec = MagicMock()
+        species.dict_of_conc_and_params = MagicMock()
         species.all[1] = {'pde': pde_stub}
         species.all[2] = {'pde': pde_stub}
         species.all[3] = {'pde': pde_stub}
-        species.differentiate1Ts()
+        species.differentiate_transport_terms_all()
         pde_stub.differentiate_pde_1TS.assert_called_with()
 
     def get_C_vector_test(cls):
@@ -252,67 +243,42 @@ class TestSpecieCollector:
         pde_stub = MagicMock()
         species.all['ox'] = {'pde': pde_stub}
         species.all['ox']['pde'].Ut = np.array([0.5, 0.5])
-        species.dict_of_conc_vec['ox'] = 0
+        species.dict_of_conc_and_params['ox'] = 0
         species.update_dict_of_conc()
-        test.eq_((species.dict_of_conc_vec['ox'] == np.array([0.5, 0.5])).all(), True)
+        test.eq_((species.dict_of_conc_and_params['ox'] == np.array([0.5, 0.5])).all(), True)
 
     def add_current_specie_to_dictionary_of_conctreations_test(cls):
         species = SpecieCollector()
         species.create_pde = MagicMock()
         species.add_to_dict_of_conc = MagicMock()
-        species.add_specie('Ox', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-        species.add_to_dict_of_conc.assert_called_once_with('Ox')
+        species.add_specie('ox', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        species.add_to_dict_of_conc.assert_called_once_with('ox')
 
     def add_to_dictionary_of_concentration_test(cls):
         species = SpecieCollector()
         pde_stub = MagicMock()
-        species.all['Ox'] = {'pde': pde_stub}
-        species.all['Ox']['pde'].Ut = np.array([0.01, 0.01])
-        species.add_to_dict_of_conc('Ox')
-        test.eq_((species.all['Ox']['pde'].Ut == species.dict_of_conc_vec['Ox']).all(), True)
-
-    def adding_reaction_term_at_each_time_step_test(cls):
-        species = SpecieCollector()
-        pde_stub = MagicMock()
-
         species.all['ox'] = {'pde': pde_stub}
-        species.all['om'] = {'pde': pde_stub}
+        species.all['ox']['pde'].Ut = np.array([0.01, 0.01])
+        species.add_to_dict_of_conc('ox')
+        test.eq_((species.all['ox']['pde'].Ut == species.dict_of_conc_and_params['ox']).all(), True)
 
-        species.all['ox']['pde'].U = 0.5
-        species.all['om']['pde'].U = 0.5
-
+    def differentiate_reaction_terms_test(cls):
+        species = SpecieCollector()
+        species.all['ox'] = {}
+        pde_stub = MagicMock()
+        species.all['ox'] = {'pde': pde_stub}
+        species.all['ox']['dt'] = 0.1
+        species.all['ox']['pde'].Ut = np.array([0.1, 0.2, 0.1])
         species.all['ox']['rate'] = 'k*ox'
-        species.all['om']['rate'] = 'k*ox'
+        species.dict_of_conc_and_params['ox'] = np.array([0.1, 0.2, 0.1])
+        species.dict_of_conc_and_params['k'] = 10
+        species.differentiate_reaction_terms_all()
+        test.eq_((species.all['ox']['pde'].Ut == np.array([0.1, 0.2, 0.1]) * 10 * 0.1 + np.array([0.1, 0.2, 0.1])).all(), True)
 
-        # print species.all['ox']['pde'].U
-        species.reaction_term()
-        # raise SkipTest
-
-    def create_rate_law_formulas_for_each_specie_based_on_regex_test(cls):
+    def differentiate_all_1_TS_test(cls):
         species = SpecieCollector()
-        pde_stub = MagicMock()
-
-        species.all['ox'] = {'pde': pde_stub}
-        species.all['om'] = {'pde': pde_stub}
-        A = 1
-        b = 0.5
-        x = 100
-        species.all['ox']['rate'] = 'A*b/(x*x)'
-        R_ox = eval(species.all['ox']['rate'])
-
-        # raise SkipTest
-
-    def diffentiate_reaction_term_test(cls):
-        # rate = '(a+b)/c'
-        # var = {'a':np.array([1,2]),'b':np.array([2]),'c':np.array([3])}
-        # result = ne.evaluate(rate, local_dict=var)
-        # print result
-        species = SpecieCollector()
-        pde_stub = MagicMock()
-        species.all['ox'] = {'pde': pde_stub}
-        species.all['om'] = {'pde': pde_stub}
-        A = 1
-        b = 0.5
-        x = 100
-        species.all['ox']['rate'] = 'A*b/(x*x)'
-        R_ox = eval(species.all['ox']['rate'])
+        species.differentiate_reaction_terms_all = MagicMock()
+        species.differentiate_transport_terms_all = MagicMock()
+        species.differentiate_all_1_TS()
+        species.differentiate_transport_terms_all.assert_called_once_with()
+        species.differentiate_transport_terms_all.assert_called_once_with()
