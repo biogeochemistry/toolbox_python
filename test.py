@@ -218,7 +218,7 @@ class TestSpecieCollector:
 
         # Testing of updating of dictionary of species
         for x in xrange(1, 10):
-            container.differentiate1Ts()
+            container.differentiate_transport_terms_all()
         test.eq_((container.get_C_vector('ox') == container.dict_of_conc_and_params['ox']).all(), True)
 
     def differentitate_1_time_step_for_each_specie_in_the_container_test(cls):
@@ -228,7 +228,7 @@ class TestSpecieCollector:
         species.all[1] = {'pde': pde_stub}
         species.all[2] = {'pde': pde_stub}
         species.all[3] = {'pde': pde_stub}
-        species.differentiate1Ts()
+        species.differentiate_transport_terms_all()
         pde_stub.differentiate_pde_1TS.assert_called_with()
 
     def get_C_vector_test(cls):
@@ -262,7 +262,7 @@ class TestSpecieCollector:
         species.add_to_dict_of_conc('ox')
         test.eq_((species.all['ox']['pde'].Ut == species.dict_of_conc_and_params['ox']).all(), True)
 
-    def reaction_term_test(cls):
+    def differentiate_reaction_terms_test(cls):
         species = SpecieCollector()
         species.all['ox'] = {}
         pde_stub = MagicMock()
@@ -275,47 +275,10 @@ class TestSpecieCollector:
         species.differentiate_reaction_terms_all()
         test.eq_((species.all['ox']['pde'].Ut == np.array([0.1, 0.2, 0.1]) * 10 * 0.1 + np.array([0.1, 0.2, 0.1])).all(), True)
 
-    def adding_reaction_term_at_each_time_step_test(cls):
+    def differentiate_all_1_TS_test(cls):
         species = SpecieCollector()
-        pde_stub = MagicMock()
-
-        species.all['ox'] = {'pde': pde_stub}
-        species.all['om'] = {'pde': pde_stub}
-
-        species.all['ox']['pde'].U = 0.5
-        species.all['om']['pde'].U = 0.5
-
-        species.all['ox']['rate'] = 'k*ox'
-        species.all['om']['rate'] = 'k*ox'
-
-        # species.reaction_term()
-        raise SkipTest
-
-    def create_rate_law_formulas_for_each_specie_based_on_regex_test(cls):
-        species = SpecieCollector()
-        pde_stub = MagicMock()
-
-        species.all['ox'] = {'pde': pde_stub}
-        species.all['om'] = {'pde': pde_stub}
-        A = 1
-        b = 0.5
-        x = 100
-        species.all['ox']['rate'] = 'A*b/(x*x)'
-        R_ox = eval(species.all['ox']['rate'])
-
-        raise SkipTest
-        # testing git flow
-        raise SkipTest
-
-    def diffentiate_reaction_term_test(cls):
-        # rate = '(a+b)/c'
-        # var = {'a':np.array([1,2]),'b':np.array([2]),'c':np.array([3])}
-        # result = ne.evaluate(rate, local_dict=var)
-        # print result
-        species = SpecieCollector()
-        pde_stub = MagicMock()
-        species.all['ox'] = {'pde': pde_stub}
-        species.all['om'] = {'pde': pde_stub}
-        A = 1
-        b = 0.5
-        x = 100
+        species.differentiate_reaction_terms_all = MagicMock()
+        species.differentiate_transport_terms_all = MagicMock()
+        species.differentiate_all_1_TS()
+        species.differentiate_transport_terms_all.assert_called_once_with()
+        species.differentiate_transport_terms_all.assert_called_once_with()
