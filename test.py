@@ -201,8 +201,6 @@ class TestSpecieCollector:
         x_max = 20
         num_x_nodes = 12
         x = np.linspace(x_min, x_max, num=num_x_nodes)
-        a = 'ox'
-        b = 'om'
         d_ox = 500.0
         w_ox = -5
         dt = 0.01
