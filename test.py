@@ -7,7 +7,7 @@ from boundary_conditions import *
 from bvp_ode import *
 from bvp_pde import *
 from coupled_pde import *
-from specie_collector import *
+from specie_collector_pde import *
 from grid import *
 import math
 
@@ -176,10 +176,10 @@ class TestAccuracyOfSolution:
         test.eq_((math.sqrt(sum) < math.pow(10, -2)), True)
 
 
-class TestSpecieCollector:
+class TestSpecieCollectorForPde:
 
     def add_method_creates_container_with_specie_test(cls):
-        species = SpecieCollector()
+        species = SpecieCollectorForPde()
         species.create_pde = MagicMock()
         species.add_specie('ox', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
         test.eq_(species.all['ox']['D'] == 1, True)
@@ -210,7 +210,7 @@ class TestSpecieCollector:
         bc_xn_type = 'Neumann'
         bc_xn_value = 0
         init_concentrations = init_cond
-        container = SpecieCollector()
+        container = SpecieCollectorForPde()
         container.add_specie('ox', d_ox, w_ox, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
         assert isinstance(container.all['ox']['pde'], BvpPde1D)
 
@@ -221,7 +221,7 @@ class TestSpecieCollector:
 
     def differentitate_1_time_step_for_each_specie_in_the_container_test(cls):
         pde_stub = MagicMock()
-        species = SpecieCollector()
+        species = SpecieCollectorForPde()
         species.dict_of_conc_and_params = MagicMock()
         species.all[1] = {'pde': pde_stub}
         species.all[2] = {'pde': pde_stub}
@@ -230,14 +230,14 @@ class TestSpecieCollector:
         pde_stub.differentiate_pde_1TS.assert_called_with()
 
     def get_C_vector_test(cls):
-        species = SpecieCollector()
+        species = SpecieCollectorForPde()
         pde_stub = MagicMock()
         species.all['ox'] = {'pde': pde_stub}
         species.all['ox']['pde'].Ut = np.array([0.5, 0.5])
         test.eq_((species.get_C_vector('ox') == np.array([0.5, 0.5])).all(), True)
 
     def update_dictionary_of_concentrations_test(cls):
-        species = SpecieCollector()
+        species = SpecieCollectorForPde()
         pde_stub = MagicMock()
         species.all['ox'] = {'pde': pde_stub}
         species.all['ox']['pde'].Ut = np.array([0.5, 0.5])
@@ -246,14 +246,14 @@ class TestSpecieCollector:
         test.eq_((species.dict_of_conc_and_params['ox'] == np.array([0.5, 0.5])).all(), True)
 
     def add_current_specie_to_dictionary_of_conctreations_test(cls):
-        species = SpecieCollector()
+        species = SpecieCollectorForPde()
         species.create_pde = MagicMock()
         species.add_to_dict_of_conc = MagicMock()
         species.add_specie('ox', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
         species.add_to_dict_of_conc.assert_called_once_with('ox')
 
     def add_to_dictionary_of_concentration_test(cls):
-        species = SpecieCollector()
+        species = SpecieCollectorForPde()
         pde_stub = MagicMock()
         species.all['ox'] = {'pde': pde_stub}
         species.all['ox']['pde'].Ut = np.array([0.01, 0.01])
@@ -261,7 +261,7 @@ class TestSpecieCollector:
         test.eq_((species.all['ox']['pde'].Ut == species.dict_of_conc_and_params['ox']).all(), True)
 
     def differentiate_reaction_terms_test(cls):
-        species = SpecieCollector()
+        species = SpecieCollectorForPde()
         species.all['ox'] = {}
         pde_stub = MagicMock()
         species.all['ox'] = {'pde': pde_stub}
@@ -274,7 +274,7 @@ class TestSpecieCollector:
         test.eq_((species.all['ox']['pde'].Ut == np.array([0.1, 0.2, 0.1]) * 10 * 0.1 + np.array([0.1, 0.2, 0.1])).all(), True)
 
     def differentiate_all_1_TS_test(cls):
-        species = SpecieCollector()
+        species = SpecieCollectorForPde()
         species.differentiate_reaction_terms_all = MagicMock()
         species.differentiate_transport_terms_all = MagicMock()
         species.differentiate_all_1_TS()
