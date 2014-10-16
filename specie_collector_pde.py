@@ -4,11 +4,10 @@ from boundary_conditions import *
 from bvp_ode import *
 from bvp_pde import *
 from coupled_pde import *
-from specie_collector import *
 import numexpr as ne
 
 
-class SpecieCollector(object):
+class SpecieCollectorForPde(object):
 
     """docstring for SpecieCollector"""
 
