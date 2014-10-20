@@ -32,23 +32,11 @@ class TestSpescieAndEnvironment:
         environment.add_specie(organic_m)
         environment.add_specie(oxygen)
         model = MathModel(environment)
-        model.run_model(Time=1)
+
 
 class TestMathModel:
 
     def initialization_with_default_values_test(cls):
-        env= MagicMock()
+        env = MagicMock()
         model = MathModel(env)
-        assert model.nx == 256
-        assert model.Lx == 10
         assert model.dt == 0.001
-
-
-
-oxygen = Specie('ox', 385, 'Fixed', 0.15)
-organic_m = Specie('om', 5, 'Flux', -500)
-environment = Environment(0.85, -5)
-environment.add_specie(oxygen)
-environment.add_specie(organic_m)
-model = MathModel(environment)
-model.run()
