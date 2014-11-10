@@ -3,6 +3,7 @@ from fipy import *
 from matplotlib import pylab
 import math
 
+
 class MathModel(object):
 
     """all math should be here"""
@@ -66,13 +67,13 @@ class MathModel(object):
         veiwers = {}
         ax = {}
         plots = len(self.environment.species)
-        v=1
-        pylab.ion()
-        fig = pylab.figure()
+        v = 1
+        # pylab.ion()
+        # fig = pylab.figure()
         for name, specie in self.environment.species.iteritems():
-            ax[name] = pylab.subplot(int(math.sqrt(plots)+1),int(math.sqrt(plots)+1),v) 
-            veiwers[name] = Viewer(vars=self.var[name], datamin=0, axes=ax[name])
-            v+=1
+            # ax[name] = pylab.subplot(int(math.sqrt(plots) + 1), int(math.sqrt(plots) + 1), v)
+            veiwers[name] = Viewer(vars=self.var[name], datamin=0)
+            v += 1
         while T < Time:
             self.eqns.solve(dt=self.dt)
             for name, var in self.var.iteritems():
