@@ -65,13 +65,7 @@ class MathModel(object):
     def run(self, Time=1):
         T = 0
         veiwers = {}
-        ax = {}
-        plots = len(self.environment.species)
-        v = 1
-        # pylab.ion()
-        # fig = pylab.figure()
         for name, specie in self.environment.species.iteritems():
-            # ax[name] = pylab.subplot(int(math.sqrt(plots) + 1), int(math.sqrt(plots) + 1), v)
             veiwers[name] = Viewer(vars=self.var[name], datamin=0)
             v += 1
         while T < Time:
