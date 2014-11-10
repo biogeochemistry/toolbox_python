@@ -1,12 +1,13 @@
 from __future__ import division  # normal division
 from fipy import *
-
+from matplotlib import pylab
+import math
 
 class MathModel(object):
 
     """all math should be here"""
 
-    def __init__(self, environment, nx=64, Lx=10, dt=0.001, dimension='2d', ny=64, Ly=10, nz=64, Lz=10):
+    def __init__(self, environment, nx=64, Lx=10, dt=0.001, dimension='1d', ny=64, Ly=10, nz=64, Lz=10):
         self.dt = dt
         self.var = {}
         self.eqns = 0
@@ -63,8 +64,15 @@ class MathModel(object):
     def run(self, Time=1):
         T = 0
         veiwers = {}
+        ax = {}
+        plots = len(self.environment.species)
+        v=1
+        pylab.ion()
+        fig = pylab.figure()
         for name, specie in self.environment.species.iteritems():
-            veiwers[name] = Viewer(vars=self.var[name], datamin=0)
+            ax[name] = pylab.subplot(int(math.sqrt(plots)+1),int(math.sqrt(plots)+1),v) 
+            veiwers[name] = Viewer(vars=self.var[name], datamin=0, axes=ax[name])
+            v+=1
         while T < Time:
             self.eqns.solve(dt=self.dt)
             for name, var in self.var.iteritems():
