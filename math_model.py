@@ -2,6 +2,7 @@ from __future__ import division  # normal division
 from fipy import *
 from matplotlib import pylab
 import math
+# from fipy.tools import parallel
 
 
 class MathModel(object):
@@ -50,9 +51,9 @@ class MathModel(object):
 
     def apply_fipy_bc(self, specie):
         if specie.bc_xn_type == 'Flux':
-            self.var[specie.name].faceGrad.constrain([specie.bc_xn_value], where=self.mesh.facesRight)
+            self.var[specie.name].faceGrad.constrain([-specie.bc_xn_value], where=self.mesh.facesRight)
         if specie.bc_x0_type == 'Flux':
-            self.var[specie.name].faceGrad.constrain([specie.bc_x0_value], where=self.mesh.facesLeft)
+            self.var[specie.name].faceGrad.constrain([-specie.bc_x0_value], where=self.mesh.facesLeft)
         if specie.bc_xn_type == 'Fixed':
             self.var[specie.name].constrain(specie.bc_xn_value, where=self.mesh.facesRight)
         if specie.bc_x0_type == 'Fixed':
@@ -62,14 +63,15 @@ class MathModel(object):
             self.var[specie.name].faceGrad.constrain([0], where=self.mesh.facesTop)
             self.var[specie.name].faceGrad.constrain([0], where=self.mesh.facesBottom)
 
-    def run(self, Time=1):
+    def run(self, Time=1, graphs=False):
         T = 0
-        veiwers = {}
-        for name, specie in self.environment.species.iteritems():
-            veiwers[name] = Viewer(vars=self.var[name], datamin=0)
-            v += 1
+        # if graphs:
+            # veiwers = {}
+            # for name, specie in self.environment.species.iteritems():
+                # veiwers[name] = Viewer(vars=self.var[name], datamin=0)
         while T < Time:
             self.eqns.solve(dt=self.dt)
-            for name, var in self.var.iteritems():
-                veiwers[name].plot()
+            # if graphs:
+                # for name, var in self.var.iteritems():
+                    # veiwers[name].plot()
             T += self.dt
