@@ -9,7 +9,7 @@ class MathModel(object):
 
     """all math should be here"""
 
-    def __init__(self, environment, nx=64, Lx=10, dt=0.001, dimension='1d', ny=64, Ly=10, nz=64, Lz=10):
+    def __init__(self, environment, nx=64, Lx=10, dt=0.1, dimension='1d', ny=64, Ly=10, nz=64, Lz=10):
         self.dt = dt
         self.var = {}
         self.eqns = 0
@@ -65,13 +65,13 @@ class MathModel(object):
 
     def run(self, Time=1, graphs=False):
         T = 0
-        # if graphs:
-            # veiwers = {}
-            # for name, specie in self.environment.species.iteritems():
-                # veiwers[name] = Viewer(vars=self.var[name], datamin=0)
+        if graphs:
+            veiwers = {}
+            for name, specie in self.environment.species.iteritems():
+                veiwers[name] = Viewer(vars=self.var[name], datamin=0)
         while T < Time:
             self.eqns.solve(dt=self.dt)
-            # if graphs:
-                # for name, var in self.var.iteritems():
-                    # veiwers[name].plot()
+            if graphs:
+                for name, var in self.var.iteritems():
+                    veiwers[name].plot()
             T += self.dt

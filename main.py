@@ -30,7 +30,7 @@ environment.add_specie(organic_m)
 # environment.add_specie(organic_m7)
 # environment.add_specie(organic_m8)
 model = MathModel(environment)
-# model.run()
+model.run()
 print DefaultSolver
 print 'time:',parallel.procID,time.time() - t0
 
