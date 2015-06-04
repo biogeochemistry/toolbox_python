@@ -7,15 +7,15 @@ from coupled_pde import *
 import numexpr as ne
 
 
-class SpecieCollectorForPde(object):
+class SpeciesCollectorForPde(object):
 
-    """docstring for SpecieCollector"""
+    """docstring for SpeciesCollector"""
 
     def __init__(self):
         self.all = {}
         self.dict_of_conc_and_params = {}
 
-    def add_specie(self, specie, D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes):
+    def add_species(self, specie, D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes):
         self.all[specie] = self.create_single_container(D, w, dt, T, bc_x0_type, bc_x0_value, bc_xn_type, bc_xn_value, init_concentrations, x_min, x_max, num_x_nodes)
         self.add_to_dict_of_conc(specie)
 
