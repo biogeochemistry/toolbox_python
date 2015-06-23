@@ -229,7 +229,7 @@ class TestSpeciesCollectorForPde:
         Species.differentiate_transport_terms_all()
         pde_stub.differentiate_pde_1TS.assert_called_with()
 
-    def get_C_vector_test(cls):
+    def get_concentrations_vector_test(cls):
         Species = SpeciesCollectorForPde()
         pde_stub = MagicMock()
         Species.all['ox'] = {'pde': pde_stub}
